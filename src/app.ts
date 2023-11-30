@@ -8,7 +8,7 @@ const port = 666
 const app: express.Application = express()
 const server = http.createServer(app);
 
-app.use(cors({credentials: true, origin: 'http://localhost:5173,"https://meta.ethci.org/'}));
+app.use(cors({credentials: true, origin: 'http://localhost:5173'}));
 const pm2Id = `thread-${process.env.pm_id}: `
 
 app.use(express.json({limit:'50mb'}));

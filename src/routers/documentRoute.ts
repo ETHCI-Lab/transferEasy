@@ -1,6 +1,7 @@
 import { Route } from "../interfaces/Route"
 
 import { documentController } from "../controller/documentController";
+import { upload } from "../middlewares/mullters";
 
 export class DocumentRoute extends Route{
     
@@ -14,7 +15,8 @@ export class DocumentRoute extends Route{
     }
 
     protected setRoutes(): void {
-        this.router.get(`${this.url}/test`,this.Contorller.documentPaser)
+        // this.router.get(`${this.url}/test`,this.Contorller.documentPaser)
+        this.router.patch(`${this.url}/parser`, upload.single('file'), this.Contorller.documentPaser);
     }
 
 }

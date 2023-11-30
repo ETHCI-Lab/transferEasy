@@ -1,12 +1,20 @@
 import multer, { FileFilterCallback } from 'multer'
 import e, { Request } from 'express';
+import path from "path";
+import fs from 'fs';
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    if (file.originalname.endsWith('.glb') || file.originalname.endsWith('.gltf')) {
-      cb(null, 'assets/root/model')
-    }else if (file.originalname.endsWith('.png') || file.originalname.endsWith('.jpg')) {
-      cb(null, 'assets/root/material')
+    if (file.originalname.endsWith('.pdf')) {
+      const dir = path.join('/pdf',file.originalname);
+      if (!fs.existsSync(dir)) {
+        try {
+          fs.mkdirSync(dir, { recursive: true });
+        } catch (error) {
+          console.log(error)
+        }
+      }
+      cb(null, dir);
     }
   },
   filename: function (req, file, cb) {
@@ -14,9 +22,7 @@ const storage = multer.diskStorage({
   }
 })
 const multerFilter = (req: Request, file: Express.Multer.File, callback: FileFilterCallback) => {
-  if (file.originalname.endsWith('.glb') || file.originalname.endsWith('.gltf')) {
-    return callback(null, true)
-  }else if (file.originalname.endsWith('.png') || file.originalname.endsWith('.jpg')) {
+  if (file.originalname.endsWith('.pdf')) {
     return callback(null, true)
   }
   return callback(null, false)
