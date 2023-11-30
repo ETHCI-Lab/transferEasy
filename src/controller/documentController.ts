@@ -15,16 +15,41 @@ export class documentController extends Contorller {
 
         const readStream = createReadStream(path);
         const client = new DocumentAnalysisClient(endpoint, new AzureKeyCredential(apiKey));
-        const poller = await client.beginAnalyzeDocument("prebuilt-read", readStream, {
-            onProgress: ({ status }) => {
-                console.log(`status: ${status}`);
-            },
-        });
+        const poller = await client.beginAnalyzeDocument("prebuilt-layout", readStream);
 
-        const { content, pages, languages, styles } = await poller.pollUntilDone();
+        const {
+            pages,
+            tables
+        } = await poller.pollUntilDone();
+
+
+        if (pages && tables) {
+            if (pages.length <= 0) {
+                console.log("No pages were extracted from the document.");
+            } else {
+                console.log("Pages:");
+                for (const page of pages) {
+                    console.log("- Page", page.pageNumber, `(unit: ${page.unit})`);
+                    console.log(`  ${page.width}x${page.height}, angle: ${page.angle}`);
+                    console.log(`  ${page.lines?.length} lines, ${page.words?.length} words`);
+                }
+            }
+
+            if (tables.length <= 0) {
+                console.log("No tables were extracted from the document.");
+            } else {
+                console.log("Tables:");
+                for (const table of tables) {
+                    console.log(
+                        `- Extracted table: ${table.columnCount} columns, ${table.rowCount} rows (${table.cells.length} cells)`
+                    );
+                }
+            }
+        }
 
         Response.send({
-            content, pages, languages, styles
+            pages,
+            tables
         })
     }
 }
